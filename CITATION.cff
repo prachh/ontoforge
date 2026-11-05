@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: "If you use OntoForge in your work, please cite it as below."
+title: "OntoForge: turn any codebase into a living business ontology"
+type: software
+authors:
+  - family-names: Chhabra
+    given-names: Pravesh
+repository-code: "https://github.com/prachh/ontoforge"
+url: "https://prachh.github.io/ontoforge/"
+license: MIT
+version: 0.1.0
+date-released: 2026-11-05
+keywords:
+  - ontology
+  - knowledge graph
+  - code analysis
+  - business rules
+  - domain-driven design
+  - OWL
+  - software comprehension
+  - LLM
+abstract: >-
+  OntoForge reads a codebase statically and builds a business ontology and code knowledge graph:
+  domain concepts, business rules, lifecycles and code mappings, with optional LLM-generated
+  definitions and rules, an OWL 2 RL reasoner, impact analysis, 2D/3D/VR visualisation and grounded chat.

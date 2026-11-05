@@ -1,0 +1,39 @@
+openapi: 3.1.0
+info:
+  title: Meridian Payments API
+  version: 1.0.0
+paths:
+  /refunds:
+    post:
+      summary: Request a refund
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefundRequest'
+      responses:
+        '202':
+          description: Refund requested
+  /payments/{payment_id}:
+    get:
+      summary: Retrieve a payment
+      responses:
+        '200':
+          description: A payment contract
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+components:
+  schemas:
+    RefundRequest:
+      type: object
+      required: [payment_id, reason]
+      properties:
+        payment_id: {type: string}
+        reason: {type: string}
+    Payment:
+      type: object
+      properties:
+        id: {type: string}
+        amount: {type: number}

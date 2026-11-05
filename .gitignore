@@ -218,3 +218,18 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# OntoForge
+# Local analysis data (database, repository snapshots, downloaded tools) stays on your machine.
+data/*
+!data/.gitkeep
+node_modules/
+web/dist/
+web/test-results/
+web/playwright-report/
+web/*.tsbuildinfo
+.DS_Store
+# Old local test evidence (machine-specific paths); regenerate with the scripts in scripts/
+artifacts/
+web/artifacts/
+site/

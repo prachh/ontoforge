@@ -1,0 +1,23 @@
+services:
+  ontoforge:
+    build: .
+    ports:
+      - "127.0.0.1:8017:8000"
+    volumes:
+      - ontoforge-data:/app/data
+      - ./sample:/sources:ro
+    environment:
+      ONTO_LOCAL_ROOTS: /sources
+      ONTO_CONCURRENCY: "2"
+      # Pass credentials from the shell; no value is checked into source.
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      ONTO_AI_PROVIDER: ${ONTO_AI_PROVIDER:-ollama}
+      ONTO_AI_BASE_URL: ${ONTO_DOCKER_AI_BASE_URL:-http://host.docker.internal:11434}
+      ONTO_AI_TIMEOUT_SECONDS: ${ONTO_AI_TIMEOUT_SECONDS:-180}
+      ONTO_AI_MODEL: ${ONTO_AI_MODEL:-}
+      ONTO_AI_API_KEY: ${ONTO_AI_API_KEY:-}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+volumes:
+  ontoforge-data:

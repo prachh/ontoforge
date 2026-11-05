@@ -1,0 +1,41 @@
+name: Bug report
+description: Something does not work as documented
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead? Screenshots help.
+    validations: {required: true}
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: "1. Connect source …\n2. Open Knowledge Graph …"
+    validations: {required: true}
+  - type: input
+    id: source
+    attributes:
+      label: Repository analysed (if public)
+      placeholder: https://github.com/owner/repo
+  - type: input
+    id: version
+    attributes:
+      label: OntoForge version or commit
+    validations: {required: true}
+  - type: dropdown
+    id: ai
+    attributes:
+      label: AI provider
+      options: [None (parsing only), Ollama, OpenAI-compatible, Amazon Bedrock]
+  - type: input
+    id: env
+    attributes:
+      label: OS, Python, Node and browser versions
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Server output or browser console errors. Remove tokens and private code first.
+      render: text

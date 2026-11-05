@@ -1,0 +1,14 @@
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: /
+    schedule: {interval: monthly}
+  - package-ecosystem: npm
+    directory: /web
+    schedule: {interval: monthly}
+    groups:
+      three: {patterns: ["three", "@types/three", "@react-three/*", "postprocessing", "r3f-forcegraph"]}
+      deck: {patterns: ["@deck.gl/*"]}
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: {interval: monthly}

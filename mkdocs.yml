@@ -1,0 +1,77 @@
+site_name: OntoForge
+site_description: OntoForge turns any codebase into a living business ontology and knowledge graph - concepts, business rules, lifecycles and code mappings, explored in 2D, 3D and VR, with grounded AI chat. Open source and local-first.
+site_author: Pravesh Chhabra
+site_url: https://prachh.github.io/ontoforge/
+repo_url: https://github.com/prachh/ontoforge
+repo_name: prachh/ontoforge
+edit_uri: edit/main/docs/
+copyright: Copyright &copy; 2026 Pravesh Chhabra and OntoForge contributors - MIT License
+
+theme:
+  name: material
+  custom_dir: overrides
+  logo: images/logo.svg
+  favicon: images/logo.svg
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: teal
+      accent: amber
+      toggle: {icon: material/weather-night, name: Switch to dark mode}
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: teal
+      accent: amber
+      toggle: {icon: material/weather-sunny, name: Switch to light mode}
+  features:
+    - navigation.instant
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - search.suggest
+    - content.code.copy
+    - content.action.edit
+
+plugins:
+  - search
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc: {permalink: true}
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/prachh/ontoforge
+
+nav:
+  - Home: index.md
+  - Getting started: getting-started.md
+  - Tutorial: tutorial.md
+  - Configuration: configuration.md
+  - User guide:
+      - Knowledge Graph: user-guide/knowledge-graph.md
+      - Outputs: user-guide/outputs.md
+      - Chat: user-guide/chat.md
+      - GitHub sources: user-guide/github-sources.md
+  - Concepts:
+      - Ontology vs knowledge graph: concepts/ontology-vs-knowledge-graph.md
+      - Generative ontology: concepts/generative-ontology.md
+      - Canonical ontology model: concepts/ontology-model.md
+      - Code discovery: concepts/code-discovery.md
+      - Supported languages and formats: concepts/supported-formats.md
+  - Reference:
+      - Architecture: reference/architecture.md
+      - Ontology engines: reference/ontology-engines.md
+      - Open Ontologies: reference/open-ontologies.md
+      - Scale and limitations: reference/scale-and-limitations.md
+  - FAQ: faq.md
