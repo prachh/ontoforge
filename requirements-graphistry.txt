@@ -1,2 +1,2 @@
 # Optional: "Open in Graphistry" (uploads the graph to a Graphistry server). Install with: pip install -r requirements-graphistry.txt
-graphistry==0.61.0
+graphistry==0.61.2
