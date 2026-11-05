@@ -61,7 +61,7 @@ def inventory(source,snapshot,job):
     snapshot['root_identity']=str(root) if source['kind']!='github' else source['location']
     checkpoint(job,'Inventory'); log(job,f"Scanning files under {snapshot['root_identity']}"); seen=0
     snapshot['status']='inventory'; s.put('snapshot',snapshot,source['id'])
-    ignore=pathspec.PathSpec.from_lines('gitwildmatch',(root/'.gitignore').read_text().splitlines() if (root/'.gitignore').is_file() and not (root/'.gitignore').is_symlink() and (root/'.gitignore').stat().st_size<=MAX_FILE else [])
+    ignore=pathspec.GitIgnoreSpec.from_lines((root/'.gitignore').read_text().splitlines() if (root/'.gitignore').is_file() and not (root/'.gitignore').is_symlink() and (root/'.gitignore').stat().st_size<=MAX_FILE else [])
     exclusions=DEFAULT_EXCLUSIONS+source.get('exclusions',[])
     for base,dirs,files in os.walk(root,followlinks=False):
         # Symlink directories are inventoried as exclusions, never traversed.

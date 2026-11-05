@@ -3,12 +3,16 @@ updates:
   - package-ecosystem: pip
     directory: /
     schedule: {interval: monthly}
+    groups:
+      # boto3 pins an exact botocore, so they must move together
+      aws: {patterns: ["boto3", "botocore"]}
   - package-ecosystem: npm
     directory: /web
     schedule: {interval: monthly}
     groups:
       three: {patterns: ["three", "@types/three", "@react-three/*", "postprocessing", "r3f-forcegraph"]}
-      deck: {patterns: ["@deck.gl/*"]}
+      # deck.gl and cosmos.gl share luma.gl and must use the same luma.gl minor version
+      gpu-graphs: {patterns: ["@deck.gl/*", "@cosmos.gl/*", "@luma.gl/*"]}
   - package-ecosystem: github-actions
     directory: /
     schedule: {interval: monthly}
