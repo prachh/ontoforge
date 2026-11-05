@@ -20,7 +20,7 @@ pydantic==2.14.2
 pydantic_core==2.50.2
 Pygments==2.21.0
 pytest==9.2.0
-python-dateutil==2.9.0.post0
+python-dateutil==4.0.0
 python-multipart==0.0.33
 PyYAML==6.0.3
 s3transfer==0.19.3
