@@ -13,6 +13,12 @@ updates:
       three: {patterns: ["three", "@types/three", "@react-three/*", "postprocessing", "r3f-forcegraph"]}
       # deck.gl and cosmos.gl share luma.gl and must use the same luma.gl minor version
       gpu-graphs: {patterns: ["@deck.gl/*", "@cosmos.gl/*", "@luma.gl/*"]}
+    ignore:
+      # three 0.187.0 breaks postprocessing 6.39.x (setupRenderTarget errors on every frame in all 3D views); retry with 0.188
+      - dependency-name: "three"
+        versions: ["0.187.x"]
+      - dependency-name: "@types/three"
+        versions: ["0.187.x"]
   - package-ecosystem: github-actions
     directory: /
     schedule: {interval: monthly}
