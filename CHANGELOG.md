@@ -4,6 +4,17 @@ All notable changes to OntoForge are documented here. The format follows [Keep a
 
 ## [Unreleased]
 
+### Added
+- New workspace layout: navigation rail, collapsible explorer panel (source, analysis status, Review scope, searchable domain tree with concept counts), header with breadcrumb source switcher, Export menu and Generate with AI.
+- Knowledge Graph tabs (Graph, Ontology, Compare, Coverage) with one toolbar for search, layer, area, view and a Filters panel; compact counts.
+- Inspector with Overview, Relationships and Evidence tabs; relationships are labelled Declared, Inferred or AI (with confidence when the model reported it); resizable, collapsible, and a drawer on narrow screens.
+- 2D map: area boundaries, a highlighted selected neighbourhood with directional connectors, selective edge labels, minimap, zoom/fit/reset controls and keyboard panning.
+- Six colour themes (Sand & Indigo default, Arctic Blue, Obsidian & Copper, Graphite & Violet, Ivory & Ember, Midnight Navy & Electric Blue), applied to every view including canvas, WebGL and 3D renderers without reloading; saved per browser.
+- Large code graphs (over 2,500 entities) open with functions and columns hidden, one click away.
+
+### Changed
+- The Knowledge Graph fills the window; Compare uses the full width until something is selected (its explanation moved behind an info button).
+
 ## [0.1.0] - 2026-11-05
 
 First public release.

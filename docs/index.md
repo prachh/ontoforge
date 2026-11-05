@@ -29,7 +29,8 @@ It is open source, runs on your machine, never executes the code it reads, and w
 | **Business rules from code** | Field constraints, permissions, workflows, Bean Validation, Python `raise` checks, Pydantic models, plus an AI rules pass. |
 | **Generative ontology** | Definitions, hierarchy, relationship meaning, axioms, lifecycles and events from cheap and strong models, with cost plans, budget caps, caching and an AI judge. |
 | **Reasoning** | A built-in OWL 2 RL reasoner that classifies, finds contradictions and explains every result; optional SHACL, RDFS and SPARQL. |
-| **Graph views** | Sigma, cosmos.gl (GPU), deck.gl, WebVOWL-style OWL notation, ELK diagrams, 3D code city, two-floor code↔domain view, terrain, and an interactive 3D Explore mode with VR/AR. |
+| **Graph views** | Sigma maps with area boundaries and a minimap, cosmos.gl (GPU), deck.gl, WebVOWL-style OWL notation, ELK diagrams, 3D code city, two-floor code↔domain view, terrain, and an interactive 3D Explore mode with VR/AR. |
+| **Workspace** | Navigation rail, collapsible explorer with a searchable domain tree, an inspector that labels relationships declared, inferred or AI-generated, and six colour themes. |
 | **Impact analysis** | Reverse dependencies across code and concepts with an explanation chain. |
 | **Outputs** | Documentation, domain guide, rule catalogue, contracts (JSON Schema, OpenAPI), sample data, timeline and git hotspots. |
 | **Grounded chat** | Ask about a source; answers cite concepts and are built only from that source's data. |

@@ -45,10 +45,10 @@ The app is published on `127.0.0.1:8017`, data persists in the `ontoforge-data` 
 ## Your first analysis
 
 1. On **Overview**, click **Explore sample project**. The bundled Meridian sample is parsed (Python, TypeScript, SQL, OpenAPI and Markdown).
-2. Open **Knowledge Graph** to see the code graph and the domain ontology. Try the engine dropdown (Standard, cosmos.gl, deck.gl, 3D, **✦ Explore**).
+2. Open **Graph** in the navigation rail to see the domain ontology and the code graph (switch with **Domain / Code**). Try the **View** selector: 2D map, cosmos.gl, deck.gl, 3D views and **✦ Explore**.
 3. Open **Outputs** for the rule catalogue, documentation, reasoning results, timeline and more.
 
-Then analyse your own code from **Sources → Connect source**:
+Then analyse your own code with **Connect source** (on Home and Sources, or **+** next to the source selector in the explorer panel):
 
 | Source | How |
 |---|---|
@@ -61,7 +61,16 @@ In the scope dialog choose:
 - **Parsing only**: no AI calls; frameworks such as Frappe and JPA still give a full ontology with rules.
 - **Live AI**: also asks your AI provider to discover concepts the code does not declare. You must confirm that code excerpts may be sent.
 
-After analysis, **Knowledge Graph → Domain ontology → Generate with AI** adds definitions, hierarchy, relationship meaning, rules, lifecycles and events, with a cost plan before it runs. See [Generative ontology](concepts/generative-ontology.md).
+After analysis, **Generate with AI** (in the header of the Graph and Ontology pages) adds definitions, hierarchy, relationship meaning, rules, lifecycles and events, with a cost plan before it runs. See [Generative ontology](concepts/generative-ontology.md).
+
+## Finding your way around
+
+![Home: counts, analysis coverage, domain ontology and recent activity](images/overview.png)
+
+- The **navigation rail** on the left has Home, Graph, Sources, Jobs, Ontology, Outputs and History, with AI usage and Settings at the bottom.
+- The **explorer panel** next to it shows the selected source, its analysis status and the domain tree; hide it with the button at the top left to give the page more room.
+- Switch sources from the explorer panel or from the source name in the **breadcrumb**.
+- Choose a **colour theme** with the palette button in the header; six themes are available and Sand & Indigo is the default.
 
 ## Next steps
 

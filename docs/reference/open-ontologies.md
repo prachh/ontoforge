@@ -89,9 +89,9 @@ Model checks:
 - **Duplicate concept label** (warning).
 
 The UI shows the results in three places:
-- **Knowledge Graph → Domain ontology → Coverage** (*Model checks*) and in the concept inspector (*Quality findings*).
-- The **SPARQL** tab, with example queries: impact of changing a DocType, submittable documents by module, inferred record types, screens calling backend functions, and others.
-- **Download RDF…**, which exports `model`, `data`, `full` or SHACL `shapes` as Turtle for Protégé or other RDF tools. The export also works when the engine is unavailable.
+- **Knowledge Graph → Coverage** (*Model checks*) and in the concept inspector (*Quality findings*).
+- **Ontology → SPARQL** in the Knowledge Graph, with example queries: impact of changing a DocType, submittable documents by module, inferred record types, screens calling backend functions, and others.
+- **Export → Ontology (RDF/OWL)** in the header, which exports the model, data, full graph or SHACL shapes as Turtle for Protégé or other RDF tools. The export also works when the engine is unavailable.
 
 ## Safety
 

@@ -37,13 +37,14 @@ Environment: macOS 26.7.1, arm64 Apple Silicon, Python 3.13.5, 12 reported CPUs,
 
 ### Graph views
 - The table and API pages return at most 150 entities per request.
-- Standard (Sigma) and cosmos.gl views handle thousands of nodes. The 3D views draw every node as a separate object; on very large code graphs (thousands of nodes) use the area filter first. Explore stops "breathing" and shows particles only for the selection on large graphs.
+- The 2D map (Sigma) and cosmos.gl views handle thousands of nodes. Code graphs with more than 2,500 entities open with functions and columns hidden (one click shows everything), and edge labels appear only for small selected neighbourhoods. The 3D views draw every node as a separate object; on very large code graphs (thousands of nodes) use the area filter first. Explore stops "breathing" and shows particles only for the selection on large graphs.
 - Browsers allow about 16 live WebGL contexts per page. Views rebuild themselves if the browser drops one.
 
 ### Security and deployment
 - No authentication, multi-tenant access control, SSO, encrypted credential vault or GitHub App flow. Keep the HTTP listener on loopback (the default and the Docker Compose binding).
 - Session API keys and GitHub tokens stay in server memory and are lost on restart.
-- Accessibility work targets WCAG 2.2 AA (labelled controls, visible focus, reduced motion, a table alternative to graphs), but no formal audit has been done.
+- Accessibility work targets WCAG 2.2 AA (labelled controls, visible focus, keyboard tabs, menus and canvas controls, reduced motion, a table alternative to graphs, contrast checked for every colour theme), but no formal audit has been done.
+- ✦ Explore keeps its own Space/Studio scene themes and the OWL notation view keeps the standard WebVOWL colours; they do not follow the app colour theme.
 
 ### Not verified yet
 - Private GitHub repositories end to end, Linux and Windows builds of the optional Open Ontologies engine, and running the Docker image against a host Ollama server.

@@ -7,11 +7,15 @@ import {useFrame} from '@react-three/fiber';
 import {forceSimulation, forceLink, forceManyBody, forceCenter} from 'd3-force-3d';
 import {forceSimulation as force2d, forceLink as link2d, forceManyBody as charge2d, forceCenter as center2d, forceX as x2d, forceY as y2d} from 'd3-force';
 import {Scene, Pulses, Framer, webglAvailable, uniqueTags} from './city3d';
+import {graphTokens, onThemeChange, useTheme} from './theme';
 import type {Camera, Flow, Tag} from './city3d';
 import {Loader2} from 'lucide-react';
 
 type Obj = Record<string, any>;
-const DIM = new THREE.Color('#dfe5e1');
+const DIM = new THREE.Color(); const LOW = new THREE.Color(), MID = new THREE.Color(), HIGH = new THREE.Color(); let SELECTED = '';
+// Theme colours, refreshed in place; terrain runs from the canvas colour (low) to the accent (high).
+function apply3DTheme() {const k = graphTokens(); DIM.set(k.dim); LOW.set(k.canvas).lerp(new THREE.Color(k.text), .06); MID.set(k.nodes[0]); HIGH.set(k.primary).lerp(new THREE.Color(k.mode === 'dark' ? '#FFFFFF' : '#000000'), .2); SELECTED = k.select}
+apply3DTheme(); onThemeChange(apply3DTheme);
 const NoWebGL = () => <div className="map-canvas"><div className="explorer-empty error">3D needs WebGL, which is not available in this browser.</div></div>;
 
 // ---- 3D force graph ----
@@ -50,9 +54,9 @@ function ForceBody({data, colors, focus, selected, onPick, onHover, flowEdges, d
   const pulses = useMemo(() => flowEdges.map(([a, b, depth]) => ({from: () => [data.nodes[a].x, data.nodes[a].y, data.nodes[a].z] as [number, number, number], to: () => [data.nodes[b].x, data.nodes[b].y, data.nodes[b].z] as [number, number, number], depth})), [flowEdges, data]);
   return <>
     <lineSegments raycast={() => null}><bufferGeometry ref={lines}><bufferAttribute attach="attributes-position" args={[positions, 3]}/></bufferGeometry>
-      <lineBasicMaterial color="#8fa39b" transparent opacity={focus ? .05 : .22}/></lineSegments>
+      <lineBasicMaterial color={graphTokens().edge} transparent opacity={focus ? .05 : .22}/></lineSegments>
     <lineSegments raycast={() => null}><bufferGeometry ref={lit}><bufferAttribute attach="attributes-position" args={[litPositions, 3]}/></bufferGeometry>
-      <lineBasicMaterial color="#2f8a73" transparent opacity={.85}/></lineSegments>
+      <lineBasicMaterial color={SELECTED} transparent opacity={.85}/></lineSegments>
     <instancedMesh key={data.nodes.length} ref={mesh} args={[undefined, undefined, data.nodes.length]} castShadow
       onClick={e => {e.stopPropagation(); onPick(e.instanceId ?? null)}} onPointerMove={e => {e.stopPropagation(); onHover(e.instanceId ?? null)}} onPointerOut={() => onHover(null)}>
       <sphereGeometry args={[1, 16, 12]}/><meshStandardMaterial roughness={.45} toneMapped={false}/>
@@ -62,6 +66,7 @@ function ForceBody({data, colors, focus, selected, onPick, onHover, flowEdges, d
 }
 
 export function ForceGraph3D({graph, visible, colorOf, selected, camera, onSelect, highlight, flow}: ForceProps) {
+  const theme = useTheme();
   const [settled, setSettled] = useState(false); const [hover, setHover] = useState<number | null>(null);
   const data = useMemo(() => {
     const ids = graph.filterNodes(id => visible(id)); const index = new Map(ids.map((id, i) => [id, i]));
@@ -80,7 +85,7 @@ export function ForceGraph3D({graph, visible, colorOf, selected, camera, onSelec
   }, [highlight, selected, data, graph]);
   const colors = useMemo(() => data.ids.map(id => {
     const c = new THREE.Color(colorOf(graph.getNodeAttributes(id)));
-    if (id === selected) return new THREE.Color('#f59f00').multiplyScalar(1.8);
+    if (id === selected) return new THREE.Color(SELECTED).multiplyScalar(1.8);
     return focus && !focus.has(id) ? c.lerp(DIM, .85) : c;
   }), [data, colorOf, selected, focus, graph]);
   const flowEdges = useMemo<[number, number, number][]>(() => (flow?.edges || []).map(([a, b, d]) => [data.index.get(a), data.index.get(b), d] as [number | undefined, number | undefined, number])
@@ -95,7 +100,7 @@ export function ForceGraph3D({graph, visible, colorOf, selected, camera, onSelec
   if (!webglAvailable()) return <NoWebGL/>;
   if (!data.nodes.length) return <div className="map-canvas"><div className="explorer-empty">Nothing matches the filters.</div></div>;
   return <div className="map-canvas city-canvas">
-    <Scene size={Math.sqrt(data.nodes.length) * 14} onMiss={() => onSelect(null)} tags={tags} background="#f6f7f9">
+    <Scene size={Math.sqrt(data.nodes.length) * 14} onMiss={() => onSelect(null)} tags={tags}>
       <ForceBody data={data} colors={colors} focus={focus} selected={selected} onPick={i => onSelect(i === null ? null : data.ids[i])} onHover={setHover} flowEdges={flowEdges} done={() => setSettled(true)}/>
       <Framer target={frame}/>
     </Scene>
@@ -112,11 +117,11 @@ export function ForceGraph3D({graph, visible, colorOf, selected, camera, onSelec
 type TerrainMetric = 'rules' | 'links' | 'properties' | 'members' | 'changes';
 const TERRAIN_METRICS: Record<'code' | 'domain', [TerrainMetric, string][]> = {domain: [['rules', 'business rules'], ['links', 'links'], ['properties', 'properties']], code: [['links', 'links'], ['members', 'members']]};  // 'changes' (file commits) is added when git history has been read
 const TERRAIN_SIZE = 400, GRID = 140, PEAK = 70;
-const LOW = new THREE.Color('#eef4f1'), MID = new THREE.Color('#7fb8a0'), HIGH = new THREE.Color('#1d5a48');
 
 type TerrainProps = {graph: Graph; mode: 'code' | 'domain'; visible: (id: string) => boolean; colorOf: (a: Obj) => string; selected: string | null; camera: Camera; onSelect: (id: string | null) => void; heat?: Record<string, number[]> | null};
 
 export function Terrain({graph, mode, visible, colorOf, selected, camera, onSelect, heat}: TerrainProps) {
+  const theme = useTheme();
   const metrics = TERRAIN_METRICS[mode].concat(mode === 'code' && heat ? [['changes', 'file changes (git)']] : []);
   const [metric, setMetric] = useState<TerrainMetric>(mode === 'domain' ? 'rules' : 'links'); const [hover, setHover] = useState<number | null>(null);
   const land = useMemo(() => {
@@ -150,17 +155,17 @@ export function Terrain({graph, mode, visible, colorOf, selected, camera, onSele
     for (const p of pts) {const m = graph.getNodeAttribute(p.id, 'module'); if (!m || m === 'Unlinked') continue; const a = areas.get(m) || {x: 0, z: 0, n: 0}; a.x += p.x; a.z += p.z; a.n++; areas.set(m, a)}
     const areaTags: Tag[] = [...areas].filter(([, a]) => a.n >= 3).sort((a, b) => b[1].n - a[1].n).slice(0, 12).map(([m, a]) => ({key: 'a' + m, pos: [a.x / a.n, heightAt(a.x / a.n, a.z / a.n) + 4, a.z / a.n], text: m.split('/').slice(-2).join('/'), cls: 'district'}));
     return {geometry, pins, areaTags, total: pts.reduce((s, p) => s + p.v, 0)};
-  }, [graph, visible, metric, heat]);
+  }, [graph, visible, metric, heat, theme]);
   useEffect(() => () => land.geometry.dispose(), [land]);
   const pinMesh = useRef<THREE.InstancedMesh>(null);
   useLayoutEffect(() => {
     const m = pinMesh.current; if (!m) return; const o = new THREE.Object3D(); const c = new THREE.Color();
     land.pins.forEach((p, i) => {
       o.position.set(p.x, p.y + 1.2, p.z); o.scale.setScalar(p.id === selected ? 2.4 : 1.2); o.updateMatrix(); m.setMatrixAt(i, o.matrix);
-      m.setColorAt(i, p.id === selected ? c.set('#f59f00').multiplyScalar(1.8) : c.set(colorOf(graph.getNodeAttributes(p.id))));
+      m.setColorAt(i, p.id === selected ? c.set(SELECTED).multiplyScalar(1.8) : c.set(colorOf(graph.getNodeAttributes(p.id))));
     });
     m.instanceMatrix.needsUpdate = true; if (m.instanceColor) m.instanceColor.needsUpdate = true; m.computeBoundingSphere();
-  }, [land, selected, colorOf, graph]);
+  }, [land, selected, colorOf, graph, theme]);
   const [frame, setFrame] = useState<[number, number, number] | null>(null);
   useEffect(() => {if (!camera) return; const p = land.pins.find(p => camera.ids.includes(p.id)); if (p) setFrame([p.x, p.y, p.z])}, [camera]);
   const label = (p: {id: string; x: number; y: number; z: number; v: number}, cls = ''): Tag => ({key: 'p' + p.id, pos: [p.x, p.y + 3.5, p.z], text: String(graph.getNodeAttribute(p.id, 'label')), sub: `${p.v} ${metrics.find(m => m[0] === metric)?.[1] || metric}`, cls});
@@ -170,7 +175,7 @@ export function Terrain({graph, mode, visible, colorOf, selected, camera, onSele
   return <div className="map-canvas city-canvas">
     <Scene size={TERRAIN_SIZE * .9} onMiss={() => onSelect(null)} tags={tags}>
       <mesh geometry={land.geometry} receiveShadow castShadow raycast={() => null}><meshStandardMaterial vertexColors roughness={.9} flatShading={false}/></mesh>
-      <mesh geometry={land.geometry} position={[0, .05, 0]} raycast={() => null}><meshBasicMaterial wireframe color="#1d5a48" transparent opacity={.06}/></mesh>
+      <mesh geometry={land.geometry} position={[0, .05, 0]} raycast={() => null}><meshBasicMaterial wireframe color={graphTokens().primary} transparent opacity={.06}/></mesh>
       {land.pins.length > 0 && <instancedMesh key={land.pins.length} ref={pinMesh} args={[undefined, undefined, land.pins.length]} castShadow
         onClick={e => {e.stopPropagation(); if (e.instanceId !== undefined) onSelect(land.pins[e.instanceId].id)}} onPointerMove={e => {e.stopPropagation(); setHover(e.instanceId ?? null)}} onPointerOut={() => setHover(null)}>
         <sphereGeometry args={[1, 12, 10]}/><meshStandardMaterial toneMapped={false} roughness={.4}/></instancedMesh>}
@@ -189,6 +194,7 @@ type StackData = {names: string[]; edges: [number, number][]; versions: {id: str
 const STACK_GAP = 10, STACK_SPAN = 220;
 
 function StackBody({data, pos, selected, onSelect, picked, onPick, onHover}: {data: StackData; pos: [number, number][]; selected: string | null; onSelect: (id: string) => void; picked: number | null; onPick: (i: number | null) => void; onHover: (h: {name: number; layer: number} | null) => void}) {
+  const theme = useTheme();
   const mesh = useRef<THREE.InstancedMesh>(null);
   const points = useMemo(() => {
     const out: {name: number; layer: number; kind: 'kept' | 'added' | 'removed'}[] = [];
@@ -200,10 +206,10 @@ function StackBody({data, pos, selected, onSelect, picked, onPick, onHover}: {da
     points.forEach((p, i) => {
       const [x, z] = pos[p.name]; const on = data.versions[p.layer].id === selected; const isPicked = p.name === picked;
       o.position.set(x, p.layer * STACK_GAP + 1, z); o.scale.setScalar(isPicked ? 2.2 : p.kind === 'kept' ? (on ? 1.2 : .8) : 1.6); o.updateMatrix(); m.setMatrixAt(i, o.matrix);
-      m.setColorAt(i, isPicked ? c.set('#f59f00').multiplyScalar(1.8) : p.kind === 'added' ? c.set('#2fbf71').multiplyScalar(on ? 2.2 : 1.4) : p.kind === 'removed' ? c.set('#e03131').multiplyScalar(on ? 2 : 1.2) : c.set(on ? '#3d5a73' : '#a9b7c2'));
+      m.setColorAt(i, isPicked ? c.set(SELECTED).multiplyScalar(1.8) : p.kind === 'added' ? c.set(graphTokens().success).multiplyScalar(on ? 2.2 : 1.4) : p.kind === 'removed' ? c.set(graphTokens().danger).multiplyScalar(on ? 2 : 1.2) : c.set(on ? '#3d5a73' : '#a9b7c2'));
     });
     m.instanceMatrix.needsUpdate = true; if (m.instanceColor) m.instanceColor.needsUpdate = true; m.computeBoundingSphere();
-  }, [points, pos, selected, picked, data]);
+  }, [points, pos, selected, picked, data, theme]);
   const lineage = useMemo(() => {
     if (picked === null) return null; const pts: number[] = []; let prev: number | null = null;
     data.versions.forEach((v, l) => {if (v.members.includes(picked)) {if (prev !== null && prev === l - 1) pts.push(pos[picked][0], (l - 1) * STACK_GAP + 1, pos[picked][1], pos[picked][0], l * STACK_GAP + 1, pos[picked][1]); prev = l}});
@@ -212,7 +218,7 @@ function StackBody({data, pos, selected, onSelect, picked, onPick, onHover}: {da
   return <>
     {data.versions.map((v, l) => <mesh key={v.id} position={[0, l * STACK_GAP, 0]} rotation={[-Math.PI / 2, 0, 0]} onClick={e => {e.stopPropagation(); onSelect(v.id)}} receiveShadow>
       <planeGeometry args={[STACK_SPAN * 1.15, STACK_SPAN * 1.15]}/>
-      <meshStandardMaterial color={v.id === selected ? '#cfe8dc' : v.status === 'draft' ? '#f6e6d4' : '#e4ebf1'} transparent opacity={v.id === selected ? .55 : .18} side={THREE.DoubleSide} depthWrite={false}/>
+      <meshStandardMaterial color={v.id === selected ? graphTokens().primary : v.status === 'draft' ? graphTokens().warning : graphTokens().border} transparent opacity={v.id === selected ? .55 : .18} side={THREE.DoubleSide} depthWrite={false}/>
     </mesh>)}
     {lineage && lineage.length > 0 && <lineSegments raycast={() => null}><bufferGeometry><bufferAttribute attach="attributes-position" args={[lineage, 3]}/></bufferGeometry><lineBasicMaterial color={[2.4, 1.3, .2]} toneMapped={false}/></lineSegments>}
     <instancedMesh key={points.length} ref={mesh} args={[undefined, undefined, points.length]} castShadow

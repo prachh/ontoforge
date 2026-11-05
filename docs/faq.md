@@ -40,6 +40,10 @@ Any chat model Ollama can run with JSON output. 7B models work but are slow on l
 
 Yes: OWL/Turtle and SHACL (Protégé, RDF stores), SKOS glossary, JSON Schema and OpenAPI, GraphML and GEXF (Gephi, yEd, Cytoscape), Neo4j import files, Mermaid, Kineviz GraphXR and Graphistry.
 
+## Can I change the colours?
+
+Yes. The palette button in the header offers six themes: Sand & Indigo (default), Arctic Blue, Obsidian & Copper, Graphite & Violet, Ivory & Ember and Midnight Navy & Electric Blue. Each is checked for readable contrast, and your choice is remembered in the browser.
+
 ## Is it ready for production or teams?
 
 It is a local, single-user application with no authentication. Keep it bound to localhost. See [Scale and limitations](reference/scale-and-limitations.md).

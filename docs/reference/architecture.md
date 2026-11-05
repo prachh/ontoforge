@@ -42,16 +42,23 @@ flowchart LR
 
 | File | Responsibility |
 |---|---|
-| `main.tsx` | App shell, pages (Overview, Sources, Analysis Jobs, Ontology Studio, Knowledge Graph, Outputs, History, AI Usage, Settings), Outputs tabs and the chat widget. |
-| `explorer.tsx` | Knowledge Graph explorer: Map (Sigma + ForceAtlas2, Louvain areas), Structure, Focus, Diagram (React Flow with dagre or ELK), Coverage, SPARQL, impact panel. |
+| `main.tsx` | App shell (navigation rail, explorer panel, header with breadcrumb source switcher, Export menu and theme picker), pages (Overview, Sources, Analysis Jobs, Ontology Studio, Knowledge Graph, Outputs, History, AI Usage, Settings), Outputs tabs and the chat widget. |
+| `explorer.tsx` | Knowledge Graph explorer: toolbar and filters, 2D map (Sigma + ForceAtlas2, Louvain areas with boundaries, minimap, canvas controls), Structure, Focus, Diagram (React Flow with dagre or ELK), Compare, Coverage, SPARQL, the inspector (Overview, Relationships with declared/inferred/AI origins, Evidence), impact panel and the domain tree. |
 | `engines.tsx` | cosmos.gl GPU view and the WebVOWL-style OWL notation view. |
 | `deckview.tsx` | deck.gl 2.5D landscape. |
 | `city3d.tsx` | Shared three.js scene (quality switch, post-processing, WebXR), 3D code city and two-floor view. |
 | `views3d.tsx` | 3D force graph, rule/code terrain, version stack. |
 | `explore3d.tsx` | Explore: the interactive 3D graph (r3f-forcegraph). |
 | `webgl.ts` | WebGL capability check and context-loss recovery. |
+| `theme.ts` | Colour themes: the list, the saved choice, and theme colours for canvas and WebGL renderers. |
+| `ui.tsx` | Shared building blocks (keyboard-accessible tabs). |
+| `style.css` | Design tokens per theme (`[data-theme]` on `<html>`) and all component styles. |
 
 Heavy graph engines are loaded only when chosen, so the default views stay light.
+
+### Theming
+
+Each theme is a set of CSS custom properties on `[data-theme="…"]`: page, navigation, panel, elevated and input surfaces; primary, secondary, muted and disabled text; borders, focus rings, shadows, overlays and tooltips; actions, selection and status colours; and graph colours (canvas, grid, labels, edges, selected connections, dimmed nodes, area palette). The values are derived from each theme's five palette colours and checked for WCAG AA contrast. Components use only these tokens. Canvas and WebGL renderers (Sigma, cosmos.gl, deck.gl, three.js) read the same tokens through `graphTokens()` and repaint in place when the theme changes, so the camera, layout and selection are kept and no data is fetched. A small script in `index.html` applies the saved theme before the first paint.
 
 ## Persistence
 

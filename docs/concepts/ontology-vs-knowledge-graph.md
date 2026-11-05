@@ -8,7 +8,7 @@ An ontology defines types, meanings, properties and permitted relationships. The
 
 In the bundled Meridian sample, `API` is a technical definition and `POST /refunds` is a particular API declaration. `Refund` is an interpreted domain concept with supporting implementation and policy evidence. Neither the code nor the generated graph creates an actual refund transaction. Python `RefundService` and an OpenAPI operation are separate source entities even if they refer to a similar feature.
 
-In OntoForge the two are shown together. **Knowledge Graph → Side by side** puts the code graph next to the domain ontology, and selecting a concept highlights the code it was found in (and the other way round). The *3D two floors* view stacks them: the code city below, concepts above, with beams to their code. **Impact of a change** follows dependencies across both layers through the concept→code mappings.
+In OntoForge the two are shown together. The **Compare** tab of the Knowledge Graph puts the code graph next to the domain ontology, and selecting a concept highlights the code it was found in (and the other way round). The *3D two floors* view stacks them: the code city below, concepts above, with beams to their code. **Impact of a change** follows dependencies across both layers through the concept→code mappings.
 
 The engines work on the ontology, not on running systems. The built-in engine checks definitions, required properties and subclass inference; the optional [Open Ontologies](../reference/open-ontologies.md) engine adds RDFS inference, SHACL validation and SPARQL. Neither touches your source facts or invents operational records.
 

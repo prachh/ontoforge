@@ -84,4 +84,11 @@ then set `GRAPHISTRY_SERVER` (default `hub.graphistry.com`) and either `GRAPHIST
 
 ## Browser settings
 
-Page, source, filters, graph view, engine choice, panel sizes, Explore theme and sound are remembered per browser in local storage.
+These are remembered per browser in local storage, not on the server:
+
+- the **colour theme** (palette button in the header; Sand & Indigo by default, applied before the page first paints)
+- page, source, filters per layer, graph layer, view and diagram layout
+- explorer panel and inspector open or closed, inspector width
+- Explore's Space/Studio scene and sound
+
+Clearing site data resets them to the defaults.

@@ -4,6 +4,7 @@ import React, {useEffect, useMemo, useRef, useState} from 'react';
 import Graph from 'graphology';
 import {Graph as Cosmos} from '@cosmos.gl/graph';
 import {onContextLost} from './webgl';
+import {graphTokens, useTheme} from './theme';
 import {forceSimulation, forceLink, forceManyBody, forceCollide, forceX, forceY} from 'd3-force';
 import type {SimulationNodeDatum, SimulationLinkDatum} from 'd3-force';
 import {Loader2, Pause, Play} from 'lucide-react';
@@ -31,17 +32,27 @@ export function CosmosCanvas({graph, visible, colorOf, edgeColorOf, selected, pa
 
   const data = useMemo(() => {
     const ids = graph.filterNodes(id => visible(id)); const index = new Map(ids.map((id, i) => [id, i]));
-    const positions = new Float32Array(ids.length * 2), colors = new Float32Array(ids.length * 4), sizes = new Float32Array(ids.length);
+    const positions = new Float32Array(ids.length * 2), sizes = new Float32Array(ids.length);
     ids.forEach((id, i) => {
       const a = graph.getNodeAttributes(id);
       positions[2 * i] = Number.isFinite(a.x) ? a.x : Math.random() * 100; positions[2 * i + 1] = Number.isFinite(a.y) ? a.y : Math.random() * 100;
-      colors.set(rgba(colorOf(a)), 4 * i); sizes[i] = Math.min(14, 3 + Math.sqrt(graph.degree(id)) * 1.3);
+      sizes[i] = Math.min(14, 3 + Math.sqrt(graph.degree(id)) * 1.3);
     });
-    const links: number[] = [], linkColors: number[] = [];
-    graph.forEachEdge((_, a, s, t) => {const i = index.get(s), j = index.get(t); if (i === undefined || j === undefined) return; links.push(i, j); linkColors.push(...rgba(edgeColorOf(a), .75))});
+    const links: number[] = [], edgeKeys: string[] = [];
+    graph.forEachEdge((e, _, s, t) => {const i = index.get(s), j = index.get(t); if (i === undefined || j === undefined) return; links.push(i, j); edgeKeys.push(e)});
     const top = ids.map((id, i) => [graph.degree(id), i]).sort((x, y) => y[0] - x[0]).slice(0, 25).map(x => x[1]);
-    return {ids, index, positions, colors, sizes, links: new Float32Array(links), linkColors: new Float32Array(linkColors), top};
-  }, [graph, visible, colorOf, edgeColorOf]);
+    return {ids, index, positions, sizes, links: new Float32Array(links), edgeKeys, top};
+  }, [graph, visible]);
+  // Colours are separate from geometry: a theme change repaints the buffers without rebuilding the simulation.
+  const paint = useMemo(() => {
+    const colors = new Float32Array(data.ids.length * 4); data.ids.forEach((id, i) => colors.set(rgba(colorOf(graph.getNodeAttributes(id))), 4 * i));
+    const linkColors = new Float32Array(data.edgeKeys.length * 4); data.edgeKeys.forEach((e, i) => linkColors.set(rgba(edgeColorOf(graph.getEdgeAttributes(e)), .75), 4 * i));
+    return {colors, linkColors};
+  }, [data, graph, colorOf, edgeColorOf]);
+  const paintRef = useRef(paint); paintRef.current = paint;
+  const theme = useTheme();
+  useEffect(() => {const g = cosmos.current; if (!g || !ready.current) return; g.setPointColors(paint.colors); g.setLinkColors(paint.linkColors)}, [paint]);
+  useEffect(() => {const g = cosmos.current; if (!g) return; const k = graphTokens(); g.setConfig({backgroundColor: k.canvas, hoveredPointRingColor: k.select, focusedPointRingColor: k.select})}, [theme]);
 
   // Labels: the most connected points plus the selection and its neighbours, placed over the canvas every frame.
   const labelled = useMemo(() => {
@@ -56,9 +67,9 @@ export function CosmosCanvas({graph, visible, colorOf, edgeColorOf, selected, pa
     setError(''); ready.current = false; let cancelled = false; let g: Cosmos;
     try {
       g = new Cosmos(host.current, {
-        backgroundColor: '#fafcf8', spaceSize: 4096, attribution: '', rescalePositions: true, fitViewOnInit: true, fitViewDelay: 1200, fitViewPadding: .12,
+        backgroundColor: graphTokens().canvas, spaceSize: 4096, attribution: '', rescalePositions: true, fitViewOnInit: true, fitViewDelay: 1200, fitViewPadding: .12,
         pointGreyoutOpacity: .12, linkGreyoutOpacity: .04, linkOpacity: .7, linkDefaultWidth: .9, curvedLinks: true, scalePointsOnZoom: false,
-        renderHoveredPointRing: true, hoveredPointRingColor: '#2f8a73', focusedPointRingColor: '#1f6f5c', hoveredPointCursor: 'pointer', enableDrag: true,
+        renderHoveredPointRing: true, hoveredPointRingColor: graphTokens().select, focusedPointRingColor: graphTokens().select, hoveredPointCursor: 'pointer', enableDrag: true,
         simulationGravity: .2, simulationRepulsion: 1.2, simulationLinkSpring: 1, simulationLinkDistance: 10, simulationFriction: .85, simulationDecay: 6000,
         onClick: i => onSelectRef.current(i === undefined ? null : data.ids[i] ?? null),
         onPointMouseOver: (i, pos) => {const [x, y] = g.spaceToScreenPosition(pos); setHover({label: String(graph.getNodeAttribute(data.ids[i], 'label')), x, y})},
@@ -69,8 +80,8 @@ export function CosmosCanvas({graph, visible, colorOf, edgeColorOf, selected, pa
     cosmos.current = g;
     g.ready.then(() => {
       if (cancelled) return;
-      g.setPointPositions(data.positions); g.setPointColors(data.colors); g.setPointSizes(data.sizes);
-      g.setLinks(data.links); g.setLinkColors(data.linkColors); g.render(); ready.current = true;
+      g.setPointPositions(data.positions); g.setPointColors(paintRef.current.colors); g.setPointSizes(data.sizes);
+      g.setLinks(data.links); g.setLinkColors(paintRef.current.linkColors); g.render(); ready.current = true;
     }).catch(() => !cancelled && setError('GPU rendering is not available in this browser (WebGL could not start).'));
     const unlost = onContextLost(host.current, () => setRevive(r => r + 1));
     return () => {unlost(); cancelled = true; ready.current = false; cosmos.current = null; g.destroy()};

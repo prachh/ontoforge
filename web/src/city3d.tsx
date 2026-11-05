@@ -16,8 +16,10 @@ export type Flow = {start: string; edges: [string, string, number][]} | null;
 
 const BUILDING_KINDS = new Set(['Class', 'Model', 'Component', 'Table']);
 const MEMBER_KINDS = new Set(['Function', 'Test', 'Column', 'API']);
-const DIM = new THREE.Color('#dfe5e1');
-const FILE_COLOR = '#9aa3ab';
+// Scene colours follow the theme; they are refreshed in place (materials repaint, the scene and camera stay).
+const DIM = new THREE.Color(); let FILE_COLOR = '', MUTED = '', SELECTED = '', PLATE = '', LABEL = '', LABEL_EDGE = '', HOT_LOW = '', HOT_HIGH = '', MAPPED = '', FALLBACK = '', FLOOR = '';
+function applySceneTheme() {const k = graphTokens(); DIM.set(k.dim); FILE_COLOR = k.mode === 'dark' ? '#5C6A86' : '#9AA3B5'; MUTED = k.nodeMuted; SELECTED = k.select; PLATE = k.mode === 'dark' ? k.elevated : k.border; LABEL = k.text; LABEL_EDGE = k.canvas; HOT_LOW = k.elevated; HOT_HIGH = k.danger; MAPPED = k.nodes[1]; FALLBACK = k.nodes[0]; FLOOR = k.primary}
+applySceneTheme(); onThemeChange(applySceneTheme);
 
 export type Building = {id: string; label: string; kind: string; district: number; x: number; z: number; w: number; h: number; methods: number; used: number; members: string[]};
 export type District = {name: string; x: number; z: number; w: number; d: number; size: number};
@@ -110,7 +112,7 @@ function Plates({city, y = 0}: {city: City; y?: number}) {
   }, [city, y]);
   if (!city.districts.length) return null;
   return <instancedMesh key={city.districts.length} ref={mesh} args={[undefined, undefined, city.districts.length]} raycast={() => null} receiveShadow>
-    <boxGeometry args={[1, 1, 1]}/><meshStandardMaterial color="#e6e9ec" roughness={.9}/>
+    <boxGeometry args={[1, 1, 1]}/><meshStandardMaterial color={PLATE} roughness={.9}/>
   </instancedMesh>;
 }
 
@@ -160,7 +162,7 @@ function XRStage({size, children, tags}: {size: number; children: React.ReactNod
   return <group scale={k} position={[0, mode === 'immersive-ar' ? .75 : 1, -1.8]}>
     {children}
     {tags.slice(0, 40).map(t => {const [x, y, z] = t.at ? t.at() : t.pos; return <Billboard key={t.key} position={[x, y + 1 / k * .03, z]}>
-      <Text font={labelFont} fontSize={.045 / k} color="#1f2d28" outlineWidth={.004 / k} outlineColor="#ffffff" anchorY="bottom">{t.text}</Text></Billboard>})}
+      <Text font={labelFont} fontSize={.045 / k} color={LABEL} outlineWidth={.004 / k} outlineColor={LABEL_EDGE} anchorY="bottom">{t.text}</Text></Billboard>})}
   </group>;
 }
 function Effects({size, bloom}: {size: number; bloom: number}) {
@@ -173,7 +175,8 @@ function Effects({size, bloom}: {size: number; bloom: number}) {
 }
 function Controls({far}: {far: number}) {const session = useXR(s => s.session); return session ? null : <MapControls makeDefault target={[0, 0, 0]} maxPolarAngle={Math.PI / 2.15} minDistance={4} maxDistance={far * 6}/>}
 
-export function Scene({size, children, onMiss, tags, background = '#f3f5f7', bloom = .9}: {size: number; children: React.ReactNode; onMiss: () => void; tags: Tag[]; background?: string; bloom?: number}) {
+export function Scene({size, children, onMiss, tags, background, bloom = .9}: {size: number; children: React.ReactNode; onMiss: () => void; tags: Tag[]; background?: string; bloom?: number}) {
+  useTheme(); background = background || graphTokens().canvas;
   const far = Math.max(60, size); const layer = useRef<HTMLDivElement>(null);
   const [quality, setQuality] = useState<Quality>(readQuality); const store = useMemo(getXRStore, []);
   const [xr, setXr] = useState<{vr: boolean; ar: boolean}>({vr: xrEmulate(), ar: xrEmulate()}); const [xrError, setXrError] = useState('');
@@ -235,12 +238,14 @@ export function Pulses({edges, arc = 0, period = 3.2}: {edges: {from: () => [num
 }
 
 import {webglAvailable} from './webgl';
+import {graphTokens, onThemeChange, useTheme} from './theme';
 export {webglAvailable};
 
 // ---- Code city ----
 type CityProps = {graph: Graph; visible: (id: string) => boolean; colors: Record<string, string>; mapped: Map<string, Obj[]>; selected: string | null; camera: Camera; onSelect: (id: string | null) => void; heat?: Record<string, number[]> | null; flow?: Flow};
 
 export function CodeCity({graph, visible, colors, mapped, selected, camera, onSelect, heat, flow}: CityProps) {
+  const theme = useTheme();
   const city = useMemo(() => buildCity(graph, visible), [graph, visible]);
   const [colorBy, setColorBy] = useState<'type' | 'mapped' | 'hotspots'>('type'); const [allLinks, setAllLinks] = useState(false); const [hover, setHover] = useState<number | null>(null);
   const sel = selected ? city.owner.get(selected) : undefined;
@@ -253,12 +258,12 @@ export function CodeCity({graph, visible, colors, mapped, selected, camera, onSe
   const commits = useMemo(() => city.buildings.map(b => (heat?.[graph.getNodeAttribute(b.id, 'path')] || [0])[0]), [city, heat, graph]);
   const maxCommits = Math.max(1, ...commits);
   const tint = useMemo(() => city.buildings.map((b, i) => {
-    const base = colorBy === 'hotspots' ? (commits[i] ? new THREE.Color('#fde3cf').lerp(new THREE.Color('#9b1c1c'), Math.log1p(commits[i]) / Math.log1p(maxCommits)) : new THREE.Color('#d5dbe0'))
-      : new THREE.Color(colorBy === 'mapped' ? (isMapped[i] ? '#1f6f5c' : '#c9ced3') : b.kind === 'File' ? FILE_COLOR : colors[b.kind] || '#4c6ef5');
-    if (i === sel) return new THREE.Color('#f59f00').multiplyScalar(1.7);  // above 1, so it glows in high quality
+    const base = colorBy === 'hotspots' ? (commits[i] ? new THREE.Color(HOT_LOW).lerp(new THREE.Color(HOT_HIGH), Math.log1p(commits[i]) / Math.log1p(maxCommits)) : new THREE.Color(MUTED))
+      : new THREE.Color(colorBy === 'mapped' ? (isMapped[i] ? MAPPED : MUTED) : b.kind === 'File' ? FILE_COLOR : colors[b.kind] || FALLBACK);
+    if (i === sel) return new THREE.Color(SELECTED).multiplyScalar(1.7);  // above 1, so it glows in high quality
     if (colorBy === 'hotspots' && commits[i]) base.multiplyScalar(1 + 1.8 * Math.pow(commits[i] / maxCommits, 2));
     return linked && !linked.has(i) ? base.lerp(DIM, .82) : base;
-  }), [city, colors, colorBy, isMapped, sel, linked, commits, maxCommits]);
+  }), [city, colors, colorBy, isMapped, sel, linked, commits, maxCommits, theme]);
   const pulses = useMemo(() => {
     if (!flow) return []; const seen = new Set<string>(); const out: {from: () => [number, number, number]; to: () => [number, number, number]; depth: number}[] = [];
     for (const [a, b, depth] of flow.edges) {
@@ -291,7 +296,7 @@ export function CodeCity({graph, visible, colors, mapped, selected, camera, onSe
         const a = city.buildings[i], b = city.buildings[j]; const dist = Math.hypot(a.x - b.x, a.z - b.z);
         const out = sel === undefined || i === sel;
         return <QuadraticBezierLine key={i + '>' + j} start={[a.x, a.h + .3, a.z]} end={[b.x, b.h + .3, b.z]} mid={[(a.x + b.x) / 2, Math.max(a.h, b.h) + 4 + dist * .35, (a.z + b.z) / 2]}
-          color={out ? '#3b6fd8' : '#e8590c'} lineWidth={Math.min(3, .8 + Math.log2(1 + n) * .5)} transparent opacity={sel === undefined ? .35 : .85}/>;
+          color={out ? graphTokens().primary : graphTokens().warning} lineWidth={Math.min(3, .8 + Math.log2(1 + n) * .5)} transparent opacity={sel === undefined ? .35 : .85}/>;
       })}
       <Pulses edges={pulses} arc={3}/>
       <Framer target={frame}/>
@@ -310,6 +315,7 @@ export function CodeCity({graph, visible, colors, mapped, selected, camera, onSe
 type FloorsProps = {graph: Graph; code?: Graph; colorOf: (a: Obj) => string; codeColors: Record<string, string>; visible: (id: string) => boolean; selected: string | null; onSelect: (id: string | null) => void; onOpenCode: (id: string) => void};
 
 export function TwoFloors({graph, code, colorOf, codeColors, visible, selected, onSelect, onOpenCode}: FloorsProps) {
+  const theme = useTheme();
   const city = useMemo(() => code ? buildCity(code, id => !code.getNodeAttribute(id, 'test')) : null, [code]);
   const [hover, setHover] = useState<{kind: 'concept' | 'building'; i: number} | null>(null); const [pickedBuilding, setPickedBuilding] = useState<number | null>(null);
   const [showUnmapped, setShowUnmapped] = useState(true);
@@ -346,11 +352,11 @@ export function TwoFloors({graph, code, colorOf, codeColors, visible, selected, 
     : pickedBuilding !== null ? new Set(implementedBy.get(pickedBuilding) || []) : null;
 
   const tint = useMemo(() => city ? city.buildings.map((b, i) => {
-    const base = new THREE.Color(usedBuildings.has(i) ? (b.kind === 'File' ? FILE_COLOR : codeColors[b.kind] || '#4c6ef5') : '#cfd5da');
-    if (focusBuildings?.has(i)) return new THREE.Color('#f59f00');
-    if (!usedBuildings.has(i) && !showUnmapped) return base.clone().lerp(new THREE.Color('#f3f5f7'), .9);
+    const base = new THREE.Color(usedBuildings.has(i) ? (b.kind === 'File' ? FILE_COLOR : codeColors[b.kind] || FALLBACK) : MUTED);
+    if (focusBuildings?.has(i)) return new THREE.Color(SELECTED);
+    if (!usedBuildings.has(i) && !showUnmapped) return base.clone().lerp(new THREE.Color(graphTokens().canvas), .9);
     return focusBuildings ? base.lerp(DIM, .8) : base;
-  }) : [], [city, usedBuildings, codeColors, sel, pickedBuilding, showUnmapped]);
+  }) : [], [city, usedBuildings, codeColors, sel, pickedBuilding, showUnmapped, theme]);
 
   // All domain links and all beams as two line-segment buffers; the selection gets its own bold lines.
   const domainLines = useMemo(() => {
@@ -386,24 +392,24 @@ export function TwoFloors({graph, code, colorOf, codeColors, visible, selected, 
       </group>
       {/* The glass floor the ontology stands on. */}
       <mesh position={[0, floor - .2, 0]} rotation={[-Math.PI / 2, 0, 0]} raycast={() => null}>
-        <planeGeometry args={[city.width + 40, city.depth + 40]}/><meshStandardMaterial color="#dbeafe" transparent opacity={.18} side={THREE.DoubleSide} depthWrite={false}/>
+        <planeGeometry args={[city.width + 40, city.depth + 40]}/><meshStandardMaterial color={FLOOR} transparent opacity={.18} side={THREE.DoubleSide} depthWrite={false}/>
       </mesh>
       <lineSegments raycast={() => null}><bufferGeometry><bufferAttribute attach="attributes-position" args={[beamLines, 3]}/></bufferGeometry>
         <lineBasicMaterial color="#5b8def" transparent opacity={focusConcepts || focusBuildings ? .05 : .16}/></lineSegments>
       <lineSegments raycast={() => null}><bufferGeometry><bufferAttribute attach="attributes-position" args={[domainLines, 3]}/></bufferGeometry>
-        <lineBasicMaterial color="#7a8b84" transparent opacity={focusConcepts ? .12 : .45}/></lineSegments>
+        <lineBasicMaterial color="#5C6A86" transparent opacity={focusConcepts ? .12 : .45}/></lineSegments>
       {concepts.map((c, i) => {
         const dim = focusConcepts && !focusConcepts.has(i); const orphan = !c.beams.length;
         return <mesh key={c.id} position={[c.x, floor + c.r, c.z]} onClick={e => {e.stopPropagation(); setPickedBuilding(null); onSelect(c.id)}}
           onPointerOver={e => {e.stopPropagation(); setHover({kind: 'concept', i})}} onPointerOut={() => setHover(null)}>
           <sphereGeometry args={[c.r, 24, 16]}/>
-          <meshStandardMaterial color={i === sel ? '#f59f00' : orphan ? '#e03131' : c.color} transparent opacity={dim ? .18 : 1} roughness={.4}/>
+          <meshStandardMaterial color={i === sel ? SELECTED : orphan ? graphTokens().danger : c.color} transparent opacity={dim ? .18 : 1} roughness={.4}/>
         </mesh>;
       })}
       {sel !== undefined && concepts[sel].beams.map(b => <QuadraticBezierLine key={'b' + b} start={[concepts[sel].x, floor, concepts[sel].z]} end={[city.buildings[b].x, city.buildings[b].h + .3, city.buildings[b].z]}
-        mid={[(concepts[sel].x + city.buildings[b].x) / 2, (floor + city.buildings[b].h) / 2, (concepts[sel].z + city.buildings[b].z) / 2]} color="#f59f00" lineWidth={2.5}/>)}
+        mid={[(concepts[sel].x + city.buildings[b].x) / 2, (floor + city.buildings[b].h) / 2, (concepts[sel].z + city.buildings[b].z) / 2]} color={SELECTED} lineWidth={2.5}/>)}
       {pickedBuilding !== null && (implementedBy.get(pickedBuilding) || []).map(i => <QuadraticBezierLine key={'p' + i} start={[concepts[i].x, floor, concepts[i].z]} end={[city.buildings[pickedBuilding].x, city.buildings[pickedBuilding].h + .3, city.buildings[pickedBuilding].z]}
-        mid={[(concepts[i].x + city.buildings[pickedBuilding].x) / 2, (floor + city.buildings[pickedBuilding].h) / 2, (concepts[i].z + city.buildings[pickedBuilding].z) / 2]} color="#f59f00" lineWidth={2.5}/>)}
+        mid={[(concepts[i].x + city.buildings[pickedBuilding].x) / 2, (floor + city.buildings[pickedBuilding].h) / 2, (concepts[i].z + city.buildings[pickedBuilding].z) / 2]} color={SELECTED} lineWidth={2.5}/>)}
     </Scene>
     <div className="map-hud">
       <span className="hud-pill">Two floors · domain above, code below</span>

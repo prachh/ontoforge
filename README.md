@@ -36,7 +36,8 @@ Use it to onboard developers and analysts, document legacy systems, review busin
 - **Business rules from code**: required and conditional fields, uniqueness, limits, permissions, workflows, Bean Validation, Python `raise` and `frappe.throw` checks. A rule catalogue with expert review and CSV export.
 - **Generative ontology**: definitions, hierarchy, relationship meaning, axioms, lifecycles and events from a cheap and a strong model. Cost plan before running, budget caps, result caching, and an AI judge that reverts wrong claims.
 - **Reasoning**: built-in OWL 2 RL reasoner (classification, contradictions, derived facts, each explained). Optional SHACL, RDFS inference and SPARQL through [Open Ontologies](https://github.com/fabio-rovai/open-ontologies).
-- **Many ways to see the graph**: Sigma maps, cosmos.gl GPU graphs, deck.gl landscapes, WebVOWL-style OWL notation, ELK diagrams, a 3D code city, a two-floor code ↔ domain view, rule terrain, and **✦ Explore**, an interactive 3D graph with physics, flowing particles, fly-to camera and VR/AR.
+- **A focused workspace**: navigation rail, collapsible explorer with a searchable domain tree, an inspector that labels every relationship as declared, inferred or AI-generated, and six colour themes (light and dark).
+- **Many ways to see the graph**: Sigma maps with area boundaries and a minimap, cosmos.gl GPU graphs, deck.gl landscapes, WebVOWL-style OWL notation, ELK diagrams, a 3D code city, a two-floor code ↔ domain view, rule terrain, and **✦ Explore**, an interactive 3D graph with physics, flowing particles, fly-to camera and VR/AR.
 - **Impact of a change**: everything that depends on a concept or a function, across code and domain, with the chain that explains why.
 - **Outputs**: documentation, a domain guide for newcomers, JSON Schema and OpenAPI contracts, sample data, an ontology timeline and git hotspots.
 - **Grounded chat**: ask about a source in plain language. Answers come only from that source's data, cite concepts, and are saved per source.
@@ -47,8 +48,10 @@ Use it to onboard developers and analysts, document legacy systems, review busin
 
 | | |
 |---|---|
-| ![Knowledge Graph map of a domain ontology](docs/images/knowledge-graph.png) | ![3D two floors: domain concepts above the code city](docs/images/two-floors.png) |
-| **Knowledge Graph**: concepts grouped into areas | **Two floors**: concepts above the code that implements them |
+| ![Knowledge Graph map of a domain ontology](docs/images/knowledge-graph.png) | ![Inspector with relationships labelled declared, inferred or AI](docs/images/inspector-relationships.png) |
+| **Knowledge Graph**: concepts grouped into areas | **Inspector**: every relationship says where it came from |
+| ![3D two floors: domain concepts above the code city](docs/images/two-floors.png) | ![Six colour themes](docs/images/themes.png) |
+| **Two floors**: concepts above the code that implements them | **Themes**: six light and dark colour themes |
 | ![Impact of a change across code and domain](docs/images/impact-analysis.png) | ![Business rule catalogue with expert review](docs/images/business-rules.png) |
 | **Impact of a change** with explanation chains | **Business rules** read from code, reviewed by experts |
 | ![Ontology timeline](docs/images/timeline.png) | ![Grounded chat about a codebase](docs/images/chat.png) |
@@ -66,7 +69,7 @@ cd ontoforge
 ./scripts/start.sh
 ```
 
-Open <http://127.0.0.1:8017> and click **Explore sample project**. To analyse your own code, use **Sources → Connect source** (local folder, ZIP or GitHub).
+Open <http://127.0.0.1:8017> and click **Explore sample project**. To analyse your own code, use **Connect source** (local folder, ZIP or GitHub).
 
 Optional local AI with [Ollama](https://ollama.com):
 

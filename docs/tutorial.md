@@ -12,19 +12,23 @@ Start OntoForge (`./scripts/start.sh`) and open <http://127.0.0.1:8017>. On **Ov
 
 Click any coverage count (parsed, excluded, unsupported, failed) to see exactly which files are in it. Every file is accounted for.
 
+The narrow bar on the left is the navigation rail; next to it, the explorer panel shows the selected source, its analysis status and the domain tree. Switch sources from the panel or from the source name in the breadcrumb at the top.
+
 ## 2. Look at the code graph
 
-Open **Knowledge Graph → Code graph**. The Map shows files, classes, functions, API operations and tables. Press ⌘K (Ctrl+K) and search for `RefundService`. The inspector shows where it is defined, what it calls and what calls it, with links to the exact lines.
+Open **Graph** in the rail and choose **Code** in the toolbar. The 2D map shows files, classes, functions, API operations and tables. Press ⌘K (Ctrl+K) and search for `RefundService`. The inspector on the right shows it in three tabs: **Overview**, **Relationships** (what it calls and what calls it) and **Evidence** (the source excerpt and exact location).
 
 ## 3. Switch to the domain ontology
 
-Choose **Domain ontology**. Concepts such as *Refund*, *Payment* and *Customer* come from the sample's labelled demonstration proposals, merged with the technical facts. Open **Refund**: the implementation allows 14 days, the policy document says 30, and the recorded conflict stays visible as evidence rather than being silently resolved.
+Choose **Domain**. Concepts such as *Refund*, *Payment* and *Customer* come from the sample's labelled demonstration proposals, merged with the technical facts. Open **Refund**: the implementation allows 14 days, the policy document says 30, and the recorded conflict stays visible as evidence rather than being silently resolved.
 
-Try **Side by side** to see code and concepts together, then **Structure** and **Diagram** for the hierarchy and a class diagram.
+Click a concept in the domain tree of the explorer panel to select and centre it. On the **Relationships** tab every link says whether it is **Declared**, **Inferred** or **AI**-generated; click a row to go to that concept.
+
+Try the **Compare** tab to see code and concepts side by side, then the **Ontology** tab for **Structure** and **Diagram** (the hierarchy and a class diagram).
 
 ## 4. Change the engine
 
-Use the engine dropdown on **Map**:
+Use the **View** selector in the toolbar:
 
 - **✦ Explore: interactive 3D**: drag nodes, pin them, press Space to pause, F to focus.
 - **3D two floors: code ↔ domain**: concepts above, code below, beams between them.
@@ -32,16 +36,20 @@ Use the engine dropdown on **Map**:
 
 ## 5. Ask what a change would break
 
-Select a concept or a function and choose **Impact of a change**. You get the affected concepts, code, tests, APIs and rules, each with the chain that explains why, highlighted on the map.
+Select a concept or a function and choose **Impact of a change** (the lightning button in the inspector). You get the affected concepts, code, tests, APIs and rules, each with the chain that explains why, highlighted on the map.
 
 ## 6. Use the outputs
 
-Open **Outputs**: the rule catalogue, documentation, reasoning results, contracts (JSON Schema and OpenAPI), sample data and the version timeline. Download RDF from **Knowledge Graph → Download RDF…** to open the ontology in Protégé.
+Open **Outputs**: the rule catalogue, documentation, reasoning results, contracts (JSON Schema and OpenAPI), sample data and the version timeline. Use **Export → OWL ontology (Turtle)** in the header to open the ontology in Protégé, or export GraphML, Neo4j or Mermaid.
 
 ## 7. Edit and version
 
-In **Ontology Studio**, change a description and save. The approved version stays in **History**; your edit becomes a separate draft, and both appear on **Outputs → Timeline**.
+In **Ontology** (Ontology Studio), change a description and save. The approved version stays in **History**; your edit becomes a separate draft, and both appear on **Outputs → Timeline**.
 
-## 8. Your own code, with AI
+## 8. Pick a colour theme
 
-Connect a local folder, ZIP or GitHub repository in **Sources**. Configure an AI provider (see [Configuration](configuration.md)), then use **Generate with AI** and the **Chat** button. Frameworks with declared models (Frappe, JPA, Pydantic) give a rich ontology even before any AI runs.
+The palette button in the header switches between six colour themes (Sand & Indigo is the default). Nothing is reloaded: your selection, filters and camera stay where they are.
+
+## 9. Your own code, with AI
+
+Connect a local folder, ZIP or GitHub repository in **Sources** (or with **+** next to the source selector). Configure an AI provider (see [Configuration](configuration.md)), then use **Generate with AI** and the **Chat** button. Frameworks with declared models (Frappe, JPA, Pydantic) give a rich ontology even before any AI runs.
