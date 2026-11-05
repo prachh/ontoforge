@@ -881,6 +881,9 @@ def test_external_graph_tools(env,monkeypatch):
     class Client(Plotter):
         def register(s,**kw): sent['register']=kw
     fake=types.ModuleType('graphistry'); fake.client=lambda: Client(); monkeypatch.setitem(sys.modules,'graphistry',fake)
+    # pandas comes with the optional Graphistry extra, not the core install: a column view of the rows is enough here.
+    pd=types.ModuleType('pandas'); pd.DataFrame=lambda rows,columns: {c:[r[c] if isinstance(r,dict) else r[i] for r in rows] for i,c in enumerate(columns)}
+    monkeypatch.setitem(sys.modules,'pandas',pd)
     monkeypatch.setenv('GRAPHISTRY_PERSONAL_KEY_ID','kid'); monkeypatch.setenv('GRAPHISTRY_PERSONAL_KEY_SECRET','secret'); monkeypatch.setenv('GRAPHISTRY_SERVER','graphistry.internal')
     r=client.post(f'/api/export/graphistry?source_id={sid}',json={'scope':'domain','share_confirmed':True}); assert r.status_code==200,r.text
     assert r.json()['url'].endswith('dataset=abc') and sent['register']['server']=='graphistry.internal' and sent['register']['personal_key_id']=='kid'
