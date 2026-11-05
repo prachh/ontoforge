@@ -11,4 +11,4 @@ tree-sitter-typescript>=0.23,<0.24
 tree-sitter-java>=0.23,<0.24
 python-multipart>=0.0.20,<1
 pytest>=8,<10
-boto3>=1.43,<2
+boto3>=1.43.123,<2
