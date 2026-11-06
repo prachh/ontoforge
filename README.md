@@ -56,6 +56,8 @@ Use it to onboard developers and analysts, document legacy systems, review busin
 | **Impact of a change** with explanation chains | **Business rules** read from code, reviewed by experts |
 | ![Ontology timeline](docs/images/timeline.png) | ![Grounded chat about a codebase](docs/images/chat.png) |
 | **Timeline** of ontology versions | **Chat** grounded in the source's data |
+| ![Knowledge Graph in full screen](docs/images/knowledge-graph-fullscreen.png) | ![Compare: domain and code side by side](docs/images/compare.png) |
+| **Full screen**: the graph uses the whole window | **Compare**: concepts and the code behind them |
 
 Screenshots show OntoForge analysing [Frappe HRMS](https://github.com/frappe/hrms) and [ERPNext](https://github.com/frappe/erpnext).
 

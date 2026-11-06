@@ -26,6 +26,12 @@ Switch between them with **Domain / Code** in the toolbar. The concept→code ma
 
 At narrower widths the explorer panel opens as an overlay and the inspector as a drawer, so the graph keeps the space.
 
+### Full screen
+
+**Full screen** (the arrows at the right of the tab bar) gives the graph the whole window: tabs, toolbar, canvas and inspector stay, everything else is hidden. Press Esc or the same button to return.
+
+![Knowledge Graph in full screen with Salary Slip selected](../images/knowledge-graph-fullscreen.png)
+
 ## Tabs
 
 | Tab | Views |
